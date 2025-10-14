@@ -1,4 +1,9 @@
 "use client"
+import { useEffect } from "react"
+useEffect(() => {
+    import("leaflet/dist/leaflet.css")
+    import("leaflet-draw/dist/leaflet.draw.css")
+}, [])
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -39,10 +44,6 @@ import type {
     TileLayer,
     Tooltip,
 } from "leaflet"
-if (typeof window !== "undefined") {
-    import("leaflet/dist/leaflet.css");
-    import("leaflet-draw/dist/leaflet.draw.css");
-}
 import {
     CircleIcon,
     LayersIcon,

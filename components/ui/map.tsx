@@ -39,8 +39,10 @@ import type {
     TileLayer,
     Tooltip,
 } from "leaflet"
-import "leaflet-draw/dist/leaflet.draw.css"
-import "leaflet/dist/leaflet.css"
+if (typeof window !== "undefined") {
+    import("leaflet/dist/leaflet.css");
+    import("leaflet-draw/dist/leaflet.draw.css");
+}
 import {
     CircleIcon,
     LayersIcon,

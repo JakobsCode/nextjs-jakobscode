@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { oneTap } from "better-auth/plugins";
 
 const client = new MongoClient("mongodb://localhost:27017/jakobscode");
 export const db = client.db();
@@ -17,4 +18,7 @@ export const auth = betterAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
         }, 
     },
+    plugins: [ 
+        oneTap(),
+    ]
 });

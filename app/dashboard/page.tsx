@@ -1,21 +1,25 @@
+"use client"
+
 import {
     Map,
     MapTileLayer,
     MapZoomControl,
     MapLocateControl,
 } from "@/components/ui/map"
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+// import { redirect } from "next/navigation";
+// import { auth } from "@/lib/auth";
+// import { headers } from "next/headers";
 
-export default async function Dashboard() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+import dynamic from "next/dynamic"
 
-    if (!session) {
-        redirect("/sign-in");
-    }
+export default function Dashboard() {
+    // const session = await auth.api.getSession({
+    //     headers: await headers()
+    // })
+
+    // if (!session) {
+    //     redirect("/sign-in");
+    // }
 
     return (
         <div className="font-sans flex flex-col min-h-screen">

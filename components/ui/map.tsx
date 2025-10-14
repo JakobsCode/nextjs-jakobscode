@@ -39,8 +39,6 @@ import type {
     TileLayer,
     Tooltip,
 } from "leaflet"
-// import "leaflet-draw/dist/leaflet.draw.css"
-// import "leaflet/dist/leaflet.css"
 import {
     CircleIcon,
     LayersIcon,

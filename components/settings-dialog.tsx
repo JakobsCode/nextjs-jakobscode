@@ -22,6 +22,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { DeviceSettings } from "./device-setting"
 export function SettingsDialog() {
   const [open, setOpen] = React.useState(false)
   return (
@@ -58,7 +59,7 @@ export function SettingsDialog() {
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-              <Button>Add Device</Button>
+              <DeviceSettings />
             </EmptyContent>
           </Empty>
         </main>

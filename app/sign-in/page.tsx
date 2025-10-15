@@ -24,7 +24,7 @@ export default function SignIn() {
   const [isPending, startTransition] = useTransition()
 
   const sign = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
       callbackURL: "/dashboard",
       errorCallbackURL: "/sign-in?error=true",

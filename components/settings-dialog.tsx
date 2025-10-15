@@ -34,8 +34,8 @@ export function SettingsDialog() {
         </ButtonGroup>
       </DialogTrigger>
       <DialogContent className="overflow-hidden p-0 md:max-h-[500px] md:max-w-[700px] lg:max-w-[800px]">
-        <DialogTitle>Settings</DialogTitle>
-        <DialogDescription>
+        <DialogTitle className="sr-only">Settings</DialogTitle>
+        <DialogDescription className="sr-only">
           Customize your settings here.
         </DialogDescription>
         <main className="flex h-[480px] flex-1 flex-col overflow-hidden p-4 py-8">

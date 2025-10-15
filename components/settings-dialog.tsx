@@ -4,7 +4,7 @@ import * as React from "react"
 import {
   User,
 } from "lucide-react"
-
+import { IconDeviceAirtag } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,7 +14,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { ButtonGroup } from "@/components/ui/button-group"
-
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 export function SettingsDialog() {
   const [open, setOpen] = React.useState(false)
   return (
@@ -39,14 +46,21 @@ export function SettingsDialog() {
           Customize your settings here.
         </DialogDescription>
         <main className="flex h-[480px] flex-1 flex-col overflow-hidden p-4 py-8">
-          <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-muted/50 aspect-video max-w-3xl rounded-xl"
-              />
-            ))}
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <IconDeviceAirtag />
+              </EmptyMedia>
+              <EmptyTitle>No Devices Yet</EmptyTitle>
+              <EmptyDescription>
+                You haven&apos;t added any devices yet. Get started by setting up
+                your first device.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button>Add Device</Button>
+            </EmptyContent>
+          </Empty>
         </main>
       </DialogContent>
     </Dialog>

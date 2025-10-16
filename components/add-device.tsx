@@ -69,7 +69,8 @@ export function AddDevice({ variant }: { variant?: "default" | "secondary" }) {
                     Add Device
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent onInteractOutside={(e) => e.preventDefault()}
+                onEscapeKeyDown={(e) => e.preventDefault()} >
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     <DialogHeader>
                         <DialogTitle>Set up your device</DialogTitle>

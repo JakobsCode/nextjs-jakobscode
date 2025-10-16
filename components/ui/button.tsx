@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-
+import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -58,9 +58,7 @@ function Button({
       disabled={loading || props.disabled}
     >
       {loading && (
-        <span
-          className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-        />
+        <Spinner />
       )}
       {children}
     </Comp>

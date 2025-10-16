@@ -10,7 +10,7 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty"
 import { AddDevice } from "./add-device"
-import { IconDeviceAirtag, IconLoader2, IconAlertTriangle } from "@tabler/icons-react"
+import { IconDeviceAirtag, IconAlertTriangle } from "@tabler/icons-react"
 import {
     ColumnDef,
     flexRender,
@@ -28,54 +28,12 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { authClient } from "@/lib/auth-client"
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Spinner } from "./ui/spinner"
-
-import { MoreHorizontal } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
-type ApiKey = {
-    id: string
-    name: string | null
-    start: string | null
-    prefix: string | null
-    userId: string
-    refillInterval: number | null
-    refillAmount: number | null
-    lastRefillAt: Date | null
-    enabled: boolean
-    rateLimitEnabled: boolean
-    rateLimitTimeWindow: number | null
-    rateLimitMax: number | null
-    requestCount: number
-    remaining: number | null
-    lastRequest: Date | null
-    expiresAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    metadata: Record<string, any> | null
-}
+import APIStartCell from "./cells/api-start"
+import LastPingCell from "./cells/last-ping"
+import { ApiKey } from "@/lib/utils"
+import APIActionsCell from "./cells/actions"
 
 // Ideen: Akkustand, Laden/Nichtladen, Standort Meter Entfernung von GPS 
 
@@ -85,123 +43,21 @@ const columns: ColumnDef<ApiKey>[] = [
         accessorKey: "start",
         header: "API Key",
         cell: ({ row }) => {
-            const apiKey = row.original;
-            const display = `${apiKey.start}••••••••`;
-            return (
-                <code className="font-mono bg-muted px-2 py-1 rounded text-sm text-muted-foreground whitespace-nowrap">
-                    {display}
-                </code>
-            );
+            return <APIStartCell apiStartKey={row.original.start} />;
         },
     },
     {
         accessorKey: "lastRequest",
         header: "Last Ping",
         cell: ({ row }) => {
-            const apiKey = row.original
-            const last = apiKey.lastRequest ? new Date(apiKey.lastRequest) : null
-
-            if (!last) {
-                return <Badge variant="secondary">Never</Badge>
-            }
-
-            const diffMs = Date.now() - last.getTime()
-            const diffSec = Math.floor(diffMs / 1000)
-            const diffMin = Math.floor(diffSec / 60)
-            const diffHrs = Math.floor(diffMin / 60)
-            const diffDays = Math.floor(diffHrs / 24)
-
-            // --- Label berechnen ---
-            let label: string
-            if (diffSec < 60) {
-                label = `${diffSec}s`
-            } else if (diffMin < 60) {
-                label = `${diffMin} min`
-            } else if (diffHrs < 24) {
-                label = `${diffHrs} h`
-            } else {
-                label = `${diffDays} d`
-            }
-
-            // --- Farbe berechnen ---
-            let color:
-                | "default"
-                | "secondary"
-                | "destructive"
-                | "outline"
-                | "success"
-                | "warning" = "default"
-
-            if (diffMin < 5) color = "success"
-            else if (diffMin < 30) color = "warning"
-            else if (diffHrs < 24) color = "destructive"
-            else color = "secondary"
-
-            return (
-                <Badge
-                    variant={color}
-                    className="font-mono text-xs px-2 py-0.5"
-                    title={last.toLocaleString()}
-                >
-                    {label}
-                </Badge>
-            )
+            return <LastPingCell lastRequest={row.original.lastRequest} />
         },
     },
     {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
-            const apiKey = row.original
-            const [open, setOpen] = useState(false)
-            const [isPending, startTransition] = React.useTransition()
-            const queryClient = useQueryClient()
-            async function deleteKey() {
-                const { error } = await authClient.apiKey.delete({
-                    keyId: apiKey.id,
-                })
-                if (error) {
-                    console.error("Fehler beim Löschen:", error)
-                }
-                queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
-                setOpen(false)
-            }
-            return (
-                <>
-                    <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                                onClick={() => navigator.clipboard.writeText(apiKey.id)}
-                            >
-                                Copy device ID
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive" onSelect={() => setOpen(true)}>Delete device</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <AlertDialog open={open} onOpenChange={setOpen}>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the device.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction className="bg-destructive" disabled={isPending}
-                                    onClick={() => startTransition(deleteKey)}>{isPending && <Spinner />}Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </>
-            )
+            return <APIActionsCell id={row.original.id} />
         },
     },
 ]

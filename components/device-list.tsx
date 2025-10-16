@@ -28,7 +28,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { authClient } from "@/lib/auth-client"
-import { useQuery } from "@tanstack/react-query"
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Spinner } from "./ui/spinner"
 
 import { MoreHorizontal } from "lucide-react"
@@ -42,6 +42,18 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type ApiKey = {
     id: string
@@ -65,6 +77,8 @@ type ApiKey = {
     metadata: Record<string, any> | null
 }
 
+// Ideen: Akkustand, Laden/Nichtladen, Standort Meter Entfernung von GPS 
+
 const columns: ColumnDef<ApiKey>[] = [
     { accessorKey: "name", header: "Name" },
     {
@@ -80,33 +94,113 @@ const columns: ColumnDef<ApiKey>[] = [
             );
         },
     },
-    { accessorKey: "lastRequest", header: "Last Request" },
+    {
+        accessorKey: "lastRequest",
+        header: "Last Ping",
+        cell: ({ row }) => {
+            const apiKey = row.original
+            const last = apiKey.lastRequest ? new Date(apiKey.lastRequest) : null
+
+            if (!last) {
+                return <Badge variant="secondary">Never</Badge>
+            }
+
+            const diffMs = Date.now() - last.getTime()
+            const diffSec = Math.floor(diffMs / 1000)
+            const diffMin = Math.floor(diffSec / 60)
+            const diffHrs = Math.floor(diffMin / 60)
+            const diffDays = Math.floor(diffHrs / 24)
+
+            // --- Label berechnen ---
+            let label: string
+            if (diffSec < 60) {
+                label = `${diffSec}s`
+            } else if (diffMin < 60) {
+                label = `${diffMin} min`
+            } else if (diffHrs < 24) {
+                label = `${diffHrs} h`
+            } else {
+                label = `${diffDays} d`
+            }
+
+            // --- Farbe berechnen ---
+            let color:
+                | "default"
+                | "secondary"
+                | "destructive"
+                | "outline"
+                | "success"
+                | "warning" = "default"
+
+            if (diffMin < 5) color = "success"
+            else if (diffMin < 30) color = "warning"
+            else if (diffHrs < 24) color = "destructive"
+            else color = "secondary"
+
+            return (
+                <Badge
+                    variant={color}
+                    className="font-mono text-xs px-2 py-0.5"
+                    title={last.toLocaleString()}
+                >
+                    {label}
+                </Badge>
+            )
+        },
+    },
     {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
-            const payment = row.original
-
+            const apiKey = row.original
+            const [open, setOpen] = useState(false)
+            const [isPending, startTransition] = React.useTransition()
+            const queryClient = useQueryClient()
+            async function deleteKey() {
+                const { error } = await authClient.apiKey.delete({
+                    keyId: apiKey.id,
+                })
+                if (error) {
+                    console.error("Fehler beim Löschen:", error)
+                }
+                queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
+                setOpen(false)
+            }
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(payment.id)}
-                        >
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                    <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                                onClick={() => navigator.clipboard.writeText(apiKey.id)}
+                            >
+                                Copy device ID
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive" onSelect={() => setOpen(true)}>Delete device</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialog open={open} onOpenChange={setOpen}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the device.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-destructive" disabled={isPending}
+                                    onClick={() => startTransition(deleteKey)}>{isPending && <Spinner />}Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </>
             )
         },
     },

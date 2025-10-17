@@ -79,7 +79,8 @@ const DeviceList = () => {
     } = useQuery<ApiKey[]>({
         queryKey: ["apiKeys"],
         queryFn: fetchApiKeys,
-        staleTime: 1000 * 60, // 1 Minute Cache
+        staleTime: 1000 * 60,
+        refetchInterval: 1000 * 15,
     })
 
     const [sorting, setSorting] = useState<SortingState>([

@@ -19,6 +19,17 @@ export const auth = betterAuth({
         }, 
     },
     plugins: [ 
-        apiKey() 
+        apiKey({
+            rateLimit: {
+                enabled: false,
+            },
+            enableMetadata: true,
+            permissions: {
+                defaultPermissions: {
+                    devices: ["send"],
+                },
+            },
+            enableSessionForAPIKeys: false,
+        }) 
     ] 
 });

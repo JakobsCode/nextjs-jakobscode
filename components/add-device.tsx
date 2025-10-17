@@ -37,6 +37,7 @@ const formSchema = z.object({
 export function AddDevice({ variant }: { variant?: "default" | "secondary" }) {
     const [open, setOpen] = React.useState(false)
     const [apiKey, setApiKey] = React.useState<string | null>(null)
+    const [doneDisabled, setDoneDisabled] = React.useState(false);
     const queryClient = useQueryClient()
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -54,6 +55,8 @@ export function AddDevice({ variant }: { variant?: "default" | "secondary" }) {
         console.log({ apiKeyData, error });
         if (apiKeyData) {
             setApiKey(apiKeyData.key);
+            setDoneDisabled(true);
+            setTimeout(() => setDoneDisabled(false), 2000);
             form.reset({ name: "" });
             queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
         }
@@ -117,7 +120,7 @@ export function AddDevice({ variant }: { variant?: "default" | "secondary" }) {
                     </main>
                     <DialogFooter>
                         {apiKey ? (
-                            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Done</Button>
+                            <Button type="button" variant="secondary" onClick={() => setOpen(false)} disabled={doneDisabled}>{doneDisabled ? "Wait..." : "Done"}</Button>
                         ) : (
                             <Button type="submit" loading={form.formState.isSubmitting}>Confirm</Button>
                         )}

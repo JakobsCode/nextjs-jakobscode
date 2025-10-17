@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     };
 
     const { insertedId } = await collection.insertOne(doc);
-
+    console.log(`Inserted reading with ID: ${insertedId} by API Key ID: ${doc.apiKeyId}`);
     return NextResponse.json({
       status: "ok",
       id: insertedId,

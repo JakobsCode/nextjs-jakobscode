@@ -27,15 +27,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { authClient } from "@/lib/auth-client"
-import { useQuery } from "@tanstack/react-query"
 import { Spinner } from "./ui/spinner"
 import APIStartCell from "./cells/api-start"
 import LastPingCell from "./cells/last-ping"
 import { ApiKey } from "@/lib/utils"
 import APIActionsCell from "./cells/actions"
-
-// Ideen: Akkustand, Laden/Nichtladen, Standort Meter Entfernung von GPS 
+import { useApiKeys } from "@/lib/hooks"
 
 const columns: ColumnDef<ApiKey>[] = [
     { accessorKey: "name", header: "Name" },
@@ -62,13 +59,6 @@ const columns: ColumnDef<ApiKey>[] = [
     },
 ]
 
-// API-Call als separate Funktion
-async function fetchApiKeys(): Promise<ApiKey[]> {
-    const { data, error } = await authClient.apiKey.list()
-    if (error) throw new Error(error.message ?? "Fehler beim Laden der API-Keys")
-    return data
-}
-
 const DeviceList = () => {
     const {
         data = [],
@@ -76,12 +66,7 @@ const DeviceList = () => {
         isError,
         error,
         refetch,
-    } = useQuery<ApiKey[]>({
-        queryKey: ["apiKeys"],
-        queryFn: fetchApiKeys,
-        staleTime: 1000 * 60,
-        refetchInterval: 1000 * 15,
-    })
+    } = useApiKeys();
 
     const [sorting, setSorting] = useState<SortingState>([
         { id: "lastRequest", desc: true },

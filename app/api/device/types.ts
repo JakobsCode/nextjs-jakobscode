@@ -48,3 +48,8 @@ export type TrackerReadingDb = TrackerReading & {
   apiKeyId: string
   createdAt: Date
 }
+
+export type SerializableTrackerReading = Omit<TrackerReadingDb, '_id' | 'createdAt'> & {
+  _id: string;       // Convert ObjectId to string
+  createdAt: string; // Convert Date to ISO string
+};

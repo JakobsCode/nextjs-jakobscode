@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { SettingsDialog } from "@/components/settings-dialog";
+import DeviceMarker from "@/components/device-marker";
 
 export default async function Dashboard() {
     const session = await auth.api.getSession({
@@ -27,6 +28,7 @@ export default async function Dashboard() {
                         <MapLocateControl className="static" />
                         <SettingsDialog />
                         <MapZoomControl className="static" />
+                        <DeviceMarker />
                     </div>
                 </Map>
             </main>

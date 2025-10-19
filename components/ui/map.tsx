@@ -545,16 +545,10 @@ function MapCircleMarker({
 }
 
 function MapPolyline({
-    className,
     ...props
 }: PolylineProps & { ref?: Ref<Polyline> }) {
     return (
-        <LeafletPolyline
-            className={cn(
-                "fill-foreground stroke-foreground stroke-2",
-                className
-            )}
-            {...props}
+        <LeafletPolyline {...props}
         />
     )
 }

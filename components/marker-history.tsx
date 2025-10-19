@@ -2,9 +2,10 @@
 
 import { LatLngExpression } from 'leaflet'
 import React from 'react'
-import { MapCircleMarker, MapMarker } from './ui/map'
+import { MapCircleMarker, MapMarker, MapPolyline, MapPopup } from './ui/map'
 import { useQuery } from '@tanstack/react-query';
 import { getDeviceHistory } from '@/app/dashboard/functions';
+import TrackerPopup from './tracker-popup';
 
 function MapLocatePulseIcon() {
     return (
@@ -25,6 +26,7 @@ const MarkerHistory = ({ apiKeyId }: { apiKeyId: string }) => {
 
     const latest = data[0];
     const history = data.slice(1);
+    const positions = history.map(r => [r.latitude, r.longitude] as LatLngExpression);
 
     return (
         <>
@@ -33,7 +35,7 @@ const MarkerHistory = ({ apiKeyId }: { apiKeyId: string }) => {
                     key={`latest-${latest.latitude}-${latest.longitude}-${latest.createdAt ?? ''}`}
                     position={[latest.latitude, latest.longitude] as LatLngExpression}
                     icon={<MapLocatePulseIcon />}
-                />
+                ><MapPopup><TrackerPopup reading={latest} /></MapPopup></MapMarker>
             )}
             {history.map((r) => (
                 <MapCircleMarker
@@ -46,9 +48,21 @@ const MarkerHistory = ({ apiKeyId }: { apiKeyId: string }) => {
                         opacity: 0.35, // Linie transparenter
                         fillOpacity: 0.2, // Fläche transparenter
                         weight: 2,
+                        fill: false,
+                    }}
+                ><MapPopup><TrackerPopup reading={r} /></MapPopup></MapCircleMarker>
+            ))}
+            {positions.length > 1 && (
+                <MapPolyline
+                    positions={positions}
+                    pathOptions={{
+                        color: "#7a7f85",
+                        opacity: 0.5,
+                        weight: 2,
+                        dashArray: "8 6",
                     }}
                 />
-            ))}
+            )}
         </>
     )
 }

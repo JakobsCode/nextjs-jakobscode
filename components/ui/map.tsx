@@ -535,15 +535,10 @@ function MapCircle({
 }
 
 function MapCircleMarker({
-    className,
     ...props
 }: CircleMarkerProps & { ref?: Ref<CircleMarker> }) {
     return (
         <LeafletCircleMarker
-            className={cn(
-                "fill-foreground stroke-foreground stroke-2",
-                className
-            )}
             {...props}
         />
     )

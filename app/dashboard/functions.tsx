@@ -36,7 +36,7 @@ export async function getDeviceHistory(formData: unknown): Promise<SerializableT
     const docs = await collection
         .find({ apiKeyId })
         .sort({ createdAt: -1, _id: -1 })
-        .limit(100)
+        .limit(500)
         .toArray();
 
     const serializedDocs: SerializableTrackerReading[] = docs.map(doc => ({

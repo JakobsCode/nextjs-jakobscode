@@ -2,7 +2,7 @@
 
 import { LatLngExpression } from 'leaflet'
 import React from 'react'
-import { MapCircleMarker, MapMarker, MapPolyline, MapPopup } from './ui/map'
+import { MapCircle, MapCircleMarker, MapMarker, MapPolyline, MapPopup } from './ui/map'
 import { useQuery } from '@tanstack/react-query';
 import { getDeviceHistory } from '@/app/dashboard/functions';
 import TrackerPopup from './tracker-popup';
@@ -15,6 +15,8 @@ function MapLocatePulseIcon() {
         </div>
     )
 }
+
+function horiz_R95(hdop: number, uere: number) { return 1.732 * hdop * uere; }
 
 const MarkerHistory = ({ apiKeyId }: { apiKeyId: string }) => {
     const { data = [] } = useQuery({
@@ -38,19 +40,19 @@ const MarkerHistory = ({ apiKeyId }: { apiKeyId: string }) => {
                 ><MapPopup><TrackerPopup reading={latest} /></MapPopup></MapMarker>
             )}
             {history.map((r) => (
-                <MapCircleMarker
+                <MapCircle
                     key={`${r.latitude},${r.longitude},${r.createdAt ?? ""}`}
                     center={[r.latitude, r.longitude] as LatLngExpression}
-                    radius={5}
+                    radius={horiz_R95(r.HDOP, 7)} // UERE = 5 Meter
                     pathOptions={{
                         color: "#1e90ff",
                         fillColor: "#1e90ff",
                         opacity: 0.35, // Linie transparenter
                         fillOpacity: 0.2, // Fläche transparenter
                         weight: 2,
-                        fill: false,
+                        fill: true,
                     }}
-                ><MapPopup><TrackerPopup reading={r} /></MapPopup></MapCircleMarker>
+                ><MapPopup><TrackerPopup reading={r} /></MapPopup></MapCircle>
             ))}
             {positions.length > 1 && (
                 <MapPolyline

@@ -1,1 +1,1 @@
-Sourcecode für [https://jakobscode.de](jakobscode.de)
+Sourcecode für [jakobscode.de](https://jakobscode.de)
